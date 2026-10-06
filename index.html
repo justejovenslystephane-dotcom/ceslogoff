@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CESLOGOF — Sistèm Bilten Nòt</title>
+<style>
+  :root{
+    --navy:#1a1a1a;
+    --navy-2:#000000;
+    --navy-3:#000000;
+    --gold:#000000;
+    --gold-soft:#f0f0f0;
+    --cream:#ffffff;
+    --paper:#ffffff;
+    --ink:#000000;
+    --muted:#000000;
+    --line:#141414;
+    --green:#2f6f4e;
+    --green-bg:#e7f2ec;
+    --red:#a83d28;
+    --red-bg:#fbeae5;
+    --bg:#ffffff;
+    --panel:#ffffff;
+    --panel-line:#f4e9b8;
+    --shadow: 0 1px 2px rgba(20,20,20,.08), 0 8px 24px rgba(20,20,20,.10);
+    --radius:14px;
+    --font-serif: Georgia, 'Times New Roman', serif;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1a1608; --panel:#221c0c; --panel-line:#3a2f10; --ink:#fbf3d4; --muted:#c9b767;
+      --paper:#fbf3d4; --cream:#221c0c; --line:#4a3d14;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1a1608; --panel:#221c0c; --panel-line:#3a2f10; --ink:#fbf3d4; --muted:#c9b767;
+    --paper:#fbf3d4; --cream:#221c0c; --line:#4a3d14;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-sans);
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  .wrap{max-width:960px;margin:0 auto;padding:28px 20px 80px;}
+
+  header.top{
+    background:#ffffff;
+    color:#141414;
+    border-bottom:2px solid #141414;
+    padding:32px 20px 30px;
+    display:flex; flex-direction:column; align-items:center; gap:10px;
+    box-shadow:var(--shadow);
+  }
+  .emblem{width:78px;height:78px;flex:none;}
+  header.top h1{
+    font-family:var(--font-serif);
+    font-weight:700;
+    font-size:clamp(24px,4vw,32px);
+    letter-spacing:.5px;
+    margin:6px 0 0;
+    text-align:center;
+  }
+  header.top p.motto{
+    font-family:var(--font-serif);
+    font-style:italic;
+    color:#141414;
+    margin:0;
+    font-size:15px;
+    letter-spacing:.3px;
+  }
+  nav.modes{
+    display:flex; gap:8px; margin-top:18px; background:#f5f5f2;
+    border:1.5px solid #141414;
+    padding:5px; border-radius:999px; flex-wrap:wrap; justify-content:center;
+  }
+  nav.modes button{
+    border:none; background:transparent; color:#141414; font-family:var(--font-sans);
+    font-weight:600; font-size:14px; padding:9px 16px; border-radius:999px; cursor:pointer;
+    transition:background .15s ease, color .15s ease;
+  }
+  nav.modes button.active{background:#141414; color:#ffffff;}
+  nav.modes button:not(.active):hover{background:#e8e8e3;}
+
+  .subnav{display:flex; gap:8px; margin:0 0 18px; flex-wrap:wrap;}
+  .subnav button{
+    border:1.5px solid var(--panel-line); background:var(--panel); color:var(--navy-3);
+    font-family:var(--font-sans); font-weight:600; font-size:13.5px; padding:8px 14px;
+    border-radius:999px; cursor:pointer; transition:all .15s ease;
+  }
+  .subnav button.active{background:var(--gold); border-color:var(--gold); color:#ffffff;}
+  .subnav button:not(.active):hover{background:var(--gold-soft);}
+
+  .panel{
+    background:var(--panel); border:1px solid var(--panel-line); border-radius:var(--radius);
+    padding:22px; margin-top:20px; box-shadow:var(--shadow);
+  }
+  .panel h2{font-family:var(--font-serif); font-size:17px; margin:0 0 12px; color:#ffffff; background:#000000; padding:8px 14px; border-radius:8px; display:inline-block;}
+  .panel .sub{color:var(--muted); font-size:13.5px; margin:0 0 16px;}
+  .row{display:flex; gap:12px; flex-wrap:wrap;}
+  .field{display:flex; flex-direction:column; gap:6px; flex:1; min-width:150px;}
+  .field label{font-size:12.5px; font-weight:600; color:var(--muted); text-transform:none;}
+  input[type=text], input[type=number], input[type=password], input[type=file], textarea, select{
+    font-family:var(--font-sans); font-size:14.5px; padding:10px 12px; border-radius:9px;
+    border:1px solid var(--panel-line); background:var(--bg); color:var(--ink); outline:none;
+    transition:border-color .15s ease;
+  }
+  input:focus, textarea:focus, select:focus{border-color:var(--gold);}
+  textarea{resize:vertical; min-height:64px; font-family:var(--font-sans);}
+  .btn{
+    display:inline-flex; align-items:center; gap:8px; justify-content:center;
+    font-family:var(--font-sans); font-weight:600; font-size:14px; padding:10px 18px;
+    border-radius:9px; border:1px solid transparent; cursor:pointer; transition:filter .15s ease, transform .05s ease;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{background:var(--navy); color:#fffdf3;}
+  .btn-primary:hover{filter:brightness(1.1);}
+  .btn-gold{background:var(--gold); color:#ffffff;}
+  .btn-gold:hover{filter:brightness(1.05);}
+  .btn-ghost{background:#ffffff; color:var(--navy-3); border-color:var(--panel-line);}
+  .btn-ghost:hover{background:var(--gold-soft);}
+  .btn-danger{background:var(--red-bg); color:var(--red);}
+  .btn-danger:hover{filter:brightness(.97);}
+  .btn:disabled{opacity:.5; cursor:not-allowed;}
+  .btn-sm{padding:6px 12px; font-size:12.5px;}
+
+  table{width:100%; border-collapse:collapse; font-size:14px;}
+  th,td{padding:9px 8px; border-bottom:1px solid var(--panel-line); text-align:left; vertical-align:middle;}
+  th{font-size:12px; text-transform:uppercase; letter-spacing:.4px; color:var(--muted); font-weight:600;}
+  td input[type=text], td input[type=number]{padding:7px 8px; font-size:13.5px; width:100%;}
+  .empty{color:var(--muted); font-style:italic; font-size:13.5px; padding:14px 4px;}
+
+  .group-block{margin-top:6px;}
+  .group-block:first-child{margin-top:0;}
+  .group-title{
+    font-family:var(--font-serif); font-size:14.5px; font-weight:700; color:var(--navy-3);
+    margin:18px 0 8px; padding:5px 12px; background:var(--gold-soft); border-radius:999px; display:inline-block;
+  }
+  .group-block:first-child .group-title{margin-top:0;}
+
+  .badge{display:inline-block; padding:3px 10px; border-radius:999px; font-size:11.5px; font-weight:700;}
+  .badge-green{background:var(--green-bg); color:var(--green);}
+  .badge-muted{background:var(--bg); color:var(--muted);}
+
+  .notice{padding:12px 14px; border-radius:9px; font-size:13.5px; margin-bottom:14px; display:flex; gap:8px; align-items:flex-start;}
+  .notice-info{background:#eaf1fb; color:#000000;}
+  .notice-warn{background:var(--gold-soft); color:#000000;}
+  .notice-error{background:var(--red-bg); color:var(--red);}
+  .notice-success{background:var(--green-bg); color:var(--green);}
+
+  .home-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; margin-top:22px;}
+  @media (max-width:760px){.home-grid{grid-template-columns:1fr;}}
+  .choice-card{
+    background:var(--panel); border:1px solid var(--panel-line); border-radius:var(--radius);
+    padding:26px 22px; box-shadow:var(--shadow); cursor:pointer; text-align:left;
+    transition:transform .12s ease, border-color .12s ease;
+  }
+  .choice-card:hover{transform:translateY(-2px); border-color:var(--gold);}
+  .choice-card .icon{font-size:30px; margin-bottom:10px; display:block;}
+  .choice-card h3{font-family:var(--font-serif); margin:0 0 8px; font-size:17px; color:#ffffff; background:#000000; padding:6px 12px; border-radius:8px; display:inline-block;}
+  .choice-card p{margin:0; color:var(--muted); font-size:13.5px; line-height:1.5;}
+
+  .search-box{display:flex; gap:10px; flex-wrap:wrap;}
+  .search-box input{flex:1; min-width:200px;}
+
+  .bulletin-doc{
+    background:var(--cream); border:1px solid var(--line); border-radius:10px;
+    padding:30px 28px; margin-top:16px; color:#141414; border:1.5px solid #141414;
+  }
+  .bulletin-doc .doc-head{
+    display:flex; align-items:center; gap:16px; border-bottom:2.5px solid var(--gold); padding-bottom:16px; margin-bottom:18px;
+  }
+  .bulletin-doc .doc-head .emblem{width:52px;height:52px;}
+  .bulletin-doc .doc-head h2{font-family:var(--font-serif); margin:0; font-size:20px; color:var(--navy-3);}
+  .bulletin-doc .doc-head p{margin:2px 0 0; font-style:italic; font-size:12.5px; color:#141414;}
+  .doc-meta{display:grid; grid-template-columns:1fr 1fr; gap:6px 24px; font-size:14px; margin-bottom:18px;}
+  .doc-meta div span.k{color:#000000; font-size:12px; display:block;}
+  .doc-meta div span.v{font-weight:700; color:#141414;}
+  .bulletin-doc table{margin-top:4px;}
+  .bulletin-doc th{color:#141414; border-bottom:2px solid #141414;}
+  .bulletin-doc td{border-bottom:1px solid #141414; font-size:14px; color:#141414;}
+  .avg-line{display:flex; justify-content:flex-end; gap:10px; align-items:baseline; margin-top:14px; padding-top:12px; border-top:1.5px solid var(--line);}
+  .avg-line .avg-label{font-size:13px; color:#000000;}
+  .avg-line .avg-val{font-family:var(--font-serif); font-size:26px; font-weight:700; color:var(--navy-3);}
+  .doc-remark{margin-top:16px; font-size:13.5px; line-height:1.6; color:#141414;}
+  .doc-remark span.k{display:block; color:#000000; font-size:12px; margin-bottom:3px;}
+  .doc-foot{margin-top:22px; display:flex; justify-content:space-between; font-size:11.5px; color:#000000;}
+  .doc-file-preview{margin-top:6px;}
+  .doc-file-preview img{max-width:100%; border-radius:8px; border:1px solid var(--line);}
+  .doc-file-preview iframe{width:100%; height:520px; border:1px solid var(--line); border-radius:8px;}
+  .doc-file-link{display:inline-block; margin-top:10px;}
+
+  .logo-preview{width:64px; height:64px; border-radius:50%; object-fit:contain; background:#fff; border:1px solid var(--panel-line);}
+
+  .toast-wrap{position:fixed; bottom:18px; left:50%; transform:translateX(-50%); z-index:50; display:flex; flex-direction:column; gap:8px; align-items:center;}
+  .toast{background:var(--navy-3); color:#fffdf3; padding:10px 18px; border-radius:999px; font-size:13.5px; box-shadow:var(--shadow); opacity:0; animation:toastin .25s ease forwards;}
+  @keyframes toastin{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  .hidden{display:none !important;}
+
+  @media print{
+    body *{visibility:hidden;}
+    .print-area, .print-area *{visibility:visible;}
+    .print-area{position:absolute; left:0; top:0; width:100%; margin:0; border:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<header class="top">
+  <span id="headerEmblemSlot">
+  <svg class="emblem" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="50" cy="50" r="47" fill="none" stroke="#ffffff" stroke-width="3"/>
+    <circle cx="50" cy="50" r="40" fill="none" stroke="#ffffff" stroke-width="1"/>
+    <path d="M28 66 C22 50 24 34 30 24" fill="none" stroke="#ffffff" stroke-width="2"/>
+    <path d="M72 66 C78 50 76 34 70 24" fill="none" stroke="#ffffff" stroke-width="2"/>
+    <path d="M30 24 L26 30 M30 24 L34 29" stroke="#ffffff" stroke-width="2" fill="none"/>
+    <path d="M70 24 L74 30 M70 24 L66 29" stroke="#ffffff" stroke-width="2" fill="none"/>
+    <rect x="36" y="42" width="28" height="20" rx="1.5" fill="none" stroke="#ffffff" stroke-width="2"/>
+    <line x1="50" y1="42" x2="50" y2="62" stroke="#ffffff" stroke-width="2"/>
+    <path d="M36 46 h28 M36 50 h12 M52 50 h12 M36 54 h12 M52 54 h12" stroke="#ffffff" stroke-width="1"/>
+    <text x="50" y="33" text-anchor="middle" font-family="Georgia, serif" font-weight="700" font-size="9" fill="#ffffff">CESLOGOF</text>
+  </svg>
+  </span>
+  <h1>CESLOGOF</h1>
+  <p class="motto">Toujou Ekselans</p>
+  <nav class="modes">
+    <button id="navHome" class="active">Akèy</button>
+    <button id="navDirector">Direktè</button>
+    <button id="navTeacher">Pwofesè</button>
+    <button id="navStudent">Elèv</button>
+  </nav>
+</header>
+
+<div class="wrap">
+
+  <!-- ============ HOME ============ -->
+  <section id="viewHome">
+    <div class="panel" style="text-align:center;">
+      <h2 style="margin-bottom:6px;">Byenveni nan sistèm bilten CESLOGOF</h2>
+      <p class="sub" style="margin-bottom:0;">Direktè a jere lekòl la, pwofesè yo voye palmarès nòt, elèv yo konsilte bilten yo.</p>
+    </div>
+    <div class="home-grid">
+      <button class="choice-card" id="cardDirector">
+        <span class="icon">🖋️</span>
+        <h3>Mwen se Direktè</h3>
+        <p>Anrejistre elèv ak pwofesè, ranpli oswa upload bilten, epi gade palmarès pwofesè yo voye.</p>
+      </button>
+      <button class="choice-card" id="cardTeacher">
+        <span class="icon">📚</span>
+        <h3>Mwen se Pwofesè</h3>
+        <p>Voye fichye palmarès nòt tout elèv ou yo dirèkteman bay direktè a.</p>
+      </button>
+      <button class="choice-card" id="cardStudent">
+        <span class="icon">🎓</span>
+        <h3>Mwen se Elèv</h3>
+        <p>Antre ID pèsonèl ou pou wè bilten ou epi telechaje oswa enprime li.</p>
+      </button>
+    </div>
+  </section>
+
+  <!-- ============ DIRECTOR ============ -->
+  <section id="viewDirector" class="hidden">
+
+    <div id="directorAccessNotice"></div>
+
+    <div id="directorGate" class="panel hidden">
+      <h2 id="gateTitle">Aksè Direktè</h2>
+      <p class="sub" id="gateSub">Antre kòd aksè a pou ou ka jere elèv ak bilten yo.</p>
+      <div class="row" style="align-items:flex-end;">
+        <div class="field" style="max-width:220px;"><label id="gateLabel1">Kòd aksè</label><input type="password" id="gateCodeInput" placeholder="••••"></div>
+        <div class="field hidden" id="gateConfirmWrap" style="max-width:220px;"><label>Konfime kòd la</label><input type="password" id="gateCodeConfirm" placeholder="••••"></div>
+        <div class="field" style="flex:none;"><label>&nbsp;</label><button class="btn btn-primary" id="btnGateSubmit">Antre</button></div>
+      </div>
+      <div id="gateMsg" style="margin-top:10px;"></div>
+    </div>
+
+    <div id="directorContent" class="hidden">
+
+      <nav class="subnav">
+        <button class="dsub active" data-dsec="elev">👩‍🎓 Elèv</button>
+        <button class="dsub" data-dsec="pwofese">📚 Pwofesè</button>
+        <button class="dsub" data-dsec="bilten">📄 Bilten</button>
+        <button class="dsub" data-dsec="parametre">⚙️ Paramèt</button>
+      </nav>
+
+      <!-- ===== SECTION ELEV ===== -->
+      <div id="dSecElev">
+        <div class="panel">
+          <h2>Anrejistre yon elèv</h2>
+          <p class="sub">Bay chak elèv yon ID pèsonèl inik (egzanp: STU2026001). Se ID sa a elèv la ap sèvi pou li jwenn bilten li.</p>
+          <div class="row">
+            <div class="field"><label>ID pèsonèl elèv la</label><input type="text" id="newStudentId" placeholder="STU2026001"></div>
+            <div class="field"><label>Non konplè</label><input type="text" id="newStudentName" placeholder="Jan Batis Pyè"></div>
+            <div class="field" style="max-width:160px;"><label>Klas</label><input type="text" id="newStudentClass" placeholder="9AF"></div>
+            <div class="field" style="flex:none; justify-content:flex-end;"><label>&nbsp;</label><button class="btn btn-primary" id="btnAddStudent">Anrejistre</button></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>Lis elèv yo, pa klas</h2>
+          <p class="sub">Tout elèv ki anrejistre, regwoupe pa klas.</p>
+          <div id="studentsListWrap"><div class="empty">Poko gen elèv anrejistre.</div></div>
+        </div>
+      </div>
+
+      <!-- ===== SECTION PWOFESE ===== -->
+      <div id="dSecPwofese" class="hidden">
+        <div class="panel">
+          <h2>Ajoute yon pwofesè</h2>
+          <p class="sub">Bay chak pwofesè yon ID pèsonèl (egzanp: PROF001). Se ID sa a pwofesè a ap sèvi pou li voye palmarès nòt.</p>
+          <div class="row">
+            <div class="field"><label>ID pwofesè a</label><input type="text" id="newTeacherId" placeholder="PROF001"></div>
+            <div class="field"><label>Non konplè</label><input type="text" id="newTeacherName" placeholder="Marie Louis"></div>
+            <div class="field"><label>Matyè</label><input type="text" id="newTeacherSubject" placeholder="Matematik"></div>
+            <div class="field" style="max-width:160px;"><label>Klas</label><input type="text" id="newTeacherClass" placeholder="9AF"></div>
+            <div class="field" style="flex:none; justify-content:flex-end;"><label>&nbsp;</label><button class="btn btn-primary" id="btnAddTeacher">Anrejistre</button></div>
+          </div>
+          <div class="notice notice-warn" style="margin-top:14px; margin-bottom:0;">⚠️ Anrejistre pwofesè a isit la sèlman bay li yon ID. Pou li ka reyèlman voye fichye, ou dwe pataje lyen atifak sa a avè l epi ba li nivo aksè "Ka Entèraji" (Can interact) nan meni pataj Claude la.</div>
+        </div>
+
+        <div class="panel">
+          <h2>Pwofesè yo, pa klas</h2>
+          <div id="teachersListWrap"><div class="empty">Poko gen pwofesè anrejistre.</div></div>
+        </div>
+
+        <div class="panel">
+          <h2>Palmarès resevwa nan men pwofesè yo</h2>
+          <p class="sub">Fichye pwofesè yo voye dirèkteman ba ou, jwenn dirèkteman nan aplikasyon an — pa gen pasaj pa imèl. Louvri oswa telechaje yo pou revize anvan ou pibliye pou elèv yo.</p>
+          <div style="overflow-x:auto;">
+            <table>
+              <thead><tr><th>Pwofesè</th><th>Matyè</th><th>Klas</th><th>Peryòd</th><th>Dat</th><th></th></tr></thead>
+              <tbody id="submissionsTbody"><tr><td colspan="6" class="empty">Poko gen okenn palmarès resevwa.</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SECTION BILTEN ===== -->
+      <div id="dSecBilten" class="hidden">
+        <div class="panel">
+          <h2>Ranpli / pibliye yon bilten</h2>
+          <p class="sub">Chwazi yon elèv, epi swa ranpli tablo nòt yo nan aplikasyon an, oswa upload yon fichye bilten ki deja pare.</p>
+
+          <div class="row" style="margin-bottom:14px;">
+            <div class="field"><label>Elèv</label>
+              <select id="selBulletinStudent"><option value="">— Chwazi yon elèv —</option></select>
+            </div>
+            <div class="field"><label>Trimès / Peryòd</label><input type="text" id="bulletinTerm" placeholder="1ye Trimès"></div>
+            <div class="field"><label>Ane Scolè</label><input type="text" id="bulletinYear" placeholder="2026-2027"></div>
+          </div>
+
+          <nav class="subnav" style="margin-bottom:16px;">
+            <button id="btnModeTable" class="active">Kreye bilten nan aplikasyon an</button>
+            <button id="btnModeFile">Upload yon fichye</button>
+          </nav>
+
+          <div id="bulletinModeTable">
+            <div style="overflow-x:auto;">
+              <table>
+                <thead><tr><th style="width:26%;">Matyè</th><th style="width:13%;">Nòt</th><th style="width:13%;">Sou (max)</th><th style="width:13%;">Kowefisyan</th><th>Apresyasyon</th><th style="width:36px;"></th></tr></thead>
+                <tbody id="subjectsTbody"></tbody>
+              </table>
+            </div>
+            <div style="margin-top:10px;">
+              <button class="btn btn-ghost" id="btnAddSubject">+ Ajoute yon matyè</button>
+            </div>
+
+            <div class="row" style="margin-top:16px; align-items:flex-end;">
+              <div class="field" style="flex:2;">
+                <label>Apresyasyon jeneral</label>
+                <textarea id="bulletinRemark" placeholder="Egzanp: Trimès sa a te trè satisfezan, kontinye konsa."></textarea>
+              </div>
+              <div class="field" style="flex:none; text-align:right;">
+                <label>Mwayèn kalkile (/100)</label>
+                <div style="font-family:var(--font-serif); font-size:26px; font-weight:700; color:var(--navy-3);" id="liveAverage">—</div>
+              </div>
+            </div>
+
+            <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="btn btn-gold" id="btnPublish">Pibliye bilten an</button>
+              <button class="btn btn-ghost" id="btnClearForm">Efase fòm nan</button>
+            </div>
+          </div>
+
+          <div id="bulletinModeFile" class="hidden">
+            <p class="sub">Chwazi yon fichye (PDF, imaj, elatriye) ki soti nan aparèy ou epi pibliye l dirèkteman kòm bilten elèv la.</p>
+            <div class="field">
+              <label>Fichye bilten an</label>
+              <input type="file" id="bulletinFileInput" accept=".pdf,image/*,.doc,.docx,.png,.jpg,.jpeg">
+            </div>
+            <div id="fileSelectedInfo" class="sub" style="margin-top:6px;"></div>
+            <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="btn btn-gold" id="btnPublishFile">Pibliye fichye a</button>
+            </div>
+          </div>
+
+          <div id="publishMsg" style="margin-top:10px;"></div>
+        </div>
+      </div>
+
+      <!-- ===== SECTION PARAMETRE ===== -->
+      <div id="dSecParametre" class="hidden">
+        <div class="panel">
+          <h2>Chanje kòd aksè</h2>
+          <p class="sub">Chanje kòd aksè seksyon Direktè a nenpòt lè.</p>
+          <div class="row" style="align-items:flex-end;">
+            <div class="field"><label>Kòd aktyèl</label><input type="password" id="changeCodeCurrent" placeholder="••••"></div>
+            <div class="field"><label>Nouvo kòd</label><input type="password" id="changeCodeNew" placeholder="••••"></div>
+            <div class="field"><label>Konfime nouvo kòd</label><input type="password" id="changeCodeConfirm" placeholder="••••"></div>
+            <div class="field" style="flex:none;"><label>&nbsp;</label><button class="btn btn-primary" id="btnChangeCode">Chanje kòd la</button></div>
+          </div>
+          <div id="changeCodeMsg" style="margin-top:10px;"></div>
+        </div>
+
+        <div class="panel">
+          <h2>Logo lekòl la</h2>
+          <p class="sub">Chanje logo ki parèt anlè paj la ak sou tout bilten yo.</p>
+          <div class="row" style="align-items:center;">
+            <img id="logoPreview" class="logo-preview" src="" alt="Logo" style="display:none;">
+            <div class="field"><label>Nouvo imaj logo</label><input type="file" id="logoFileInput" accept="image/*"></div>
+            <div class="field" style="flex:none;"><label>&nbsp;</label><button class="btn btn-primary" id="btnUploadLogo">Telechaje logo</button></div>
+            <div class="field" style="flex:none;"><label>&nbsp;</label><button class="btn btn-ghost" id="btnResetLogo">Retabli logo default</button></div>
+          </div>
+          <div id="logoMsg" style="margin-top:10px;"></div>
+        </div>
+      </div>
+
+    </div><!-- /directorContent -->
+
+    <div id="lockWrap" class="hidden" style="margin-top:16px;">
+      <button class="btn btn-ghost" id="btnLockDirector">🔒 Fèmen seksyon Direktè a</button>
+    </div>
+
+  </section>
+
+  <!-- ============ TEACHER ============ -->
+  <section id="viewTeacher" class="hidden">
+    <div class="panel">
+      <h2>Voye palmarès nòt</h2>
+      <p class="sub">Antre ID pwofesè direktè a te ba ou, epi voye fichye palmarès nòt elèv ou yo dirèkteman bay direktè a.</p>
+      <div class="search-box">
+        <input type="text" id="teacherIdInput" placeholder="Egzanp: PROF001">
+        <button class="btn btn-primary" id="btnTeacherLookup">Kontinye</button>
+      </div>
+      <div id="teacherLookupMsg" style="margin-top:12px;"></div>
+    </div>
+
+    <div id="teacherSubmitPanel" class="panel hidden">
+      <h2 id="teacherGreeting">Byenveni</h2>
+      <p class="sub">Ranpli enfòmasyon yo epi jwenn fichye palmarès la voye bay direktè a.</p>
+      <div class="row">
+        <div class="field"><label>Matyè</label><input type="text" id="subFormSubject" placeholder="Matematik"></div>
+        <div class="field"><label>Klas</label><input type="text" id="subFormClass" placeholder="9AF"></div>
+        <div class="field"><label>Trimès / Peryòd</label><input type="text" id="subFormTerm" placeholder="1ye Trimès"></div>
+        <div class="field"><label>Ane Scolè</label><input type="text" id="subFormYear" placeholder="2026-2027"></div>
+      </div>
+      <div class="field" style="margin-top:12px;">
+        <label>Fichye palmarès la</label>
+        <input type="file" id="subFormFile" accept=".pdf,.xlsx,.xls,.csv,image/*,.doc,.docx">
+      </div>
+      <div id="subFormFileInfo" class="sub" style="margin-top:6px;"></div>
+      <div class="field" style="margin-top:12px;">
+        <label>Nòt pou direktè a (opsyonèl)</label>
+        <textarea id="subFormNote" placeholder="Egzanp: Palmarès 1ye trimès pou klas 9AF."></textarea>
+      </div>
+      <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn btn-gold" id="btnSubmitPalmares">Voye bay direktè a</button>
+      </div>
+      <div id="submitMsg" style="margin-top:10px;"></div>
+    </div>
+  </section>
+
+  <!-- ============ STUDENT ============ -->
+  <section id="viewStudent" class="hidden">
+    <div class="panel">
+      <h2>Jwenn bilten ou</h2>
+      <p class="sub">Antre ID pèsonèl direktè a te ba ou lè li te anrejistre ou.</p>
+      <div class="search-box">
+        <input type="text" id="studentSearchId" placeholder="Egzanp: STU2026001">
+        <button class="btn btn-primary" id="btnSearchBulletin">Chèche bilten mwen</button>
+      </div>
+      <div id="studentSearchMsg" style="margin-top:12px;"></div>
+    </div>
+
+    <div id="studentResultWrap"></div>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  function esc(s){
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+  function sanitizeId(raw){
+    return String(raw || "").trim().replace(/[^A-Za-z0-9_\-.~:@+]/g, "").slice(0, 64);
+  }
+  function toast(msg){
+    var wrap = document.getElementById("toastWrap");
+    var el = document.createElement("div");
+    el.className = "toast";
+    el.textContent = msg;
+    wrap.appendChild(el);
+    setTimeout(function(){ el.remove(); }, 3200);
+  }
+  function noticeHtml(kind, text){
+    return '<div class="notice notice-' + kind + '">' + text + '</div>';
+  }
+  function uid(){ return 'r' + Math.random().toString(36).slice(2,10); }
+  function groupBy(cache, keyField){
+    var groups = {};
+    Object.keys(cache).forEach(function(id){
+      var item = cache[id];
+      var key = (item[keyField] || "").trim() || "San klas";
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(item);
+    });
+    return groups;
+  }
+  function sortedGroupKeys(groups){
+    return Object.keys(groups).sort(function(a,b){
+      if (a === "San klas") return 1;
+      if (b === "San klas") return -1;
+      return a.localeCompare(b);
+    });
+  }
+
+  var views = { home:"viewHome", director:"viewDirector", teacher:"viewTeacher", student:"viewStudent" };
+  var navBtns = { home:"navHome", director:"navDirector", teacher:"navTeacher", student:"navStudent" };
+  function showView(name){
+    Object.keys(views).forEach(function(k){
+      document.getElementById(views[k]).classList.toggle("hidden", k !== name);
+      document.getElementById(navBtns[k]).classList.toggle("active", k === name);
+    });
+  }
+  document.getElementById("navHome").onclick = function(){ showView("home"); };
+  document.getElementById("navDirector").onclick = function(){ showView("director"); loadSettings().then(refreshDirectorGate); };
+  document.getElementById("navTeacher").onclick = function(){ showView("teacher"); };
+  document.getElementById("navStudent").onclick = function(){ showView("student"); };
+  document.getElementById("cardDirector").onclick = function(){ showView("director"); loadSettings().then(refreshDirectorGate); };
+  document.getElementById("cardTeacher").onclick = function(){ showView("teacher"); };
+  document.getElementById("cardStudent").onclick = function(){ showView("student"); };
+
+  var secMap = { elev:"dSecElev", pwofese:"dSecPwofese", bilten:"dSecBilten", parametre:"dSecParametre" };
+  document.querySelectorAll(".dsub").forEach(function(btn){
+    btn.onclick = function(){
+      document.querySelectorAll(".dsub").forEach(function(b){ b.classList.remove("active"); });
+      btn.classList.add("active");
+      var target = btn.getAttribute("data-dsec");
+      Object.keys(secMap).forEach(function(key){
+        document.getElementById(secMap[key]).classList.toggle("hidden", key !== target);
+      });
+    };
+  });
+
+  var db = null, downloadsCap = null, userCap = null, assetsCap = null, canWrite = false;
+  var submissionsSubscribed = false;
+  var currentLogoUrl = null;
+
+  async function initCapabilities(){
+    try{
+      if (window.claude && typeof window.claude.use === "function"){
+        db = await window.claude.use("db");
+        downloadsCap = await window.claude.use("downloads");
+        userCap = await window.claude.use("user");
+        assetsCap = await window.claude.use("assets");
+      }
+    }catch(e){ /* design for absence */ }
+
+    var notice = document.getElementById("directorAccessNotice");
+
+    if (!db){
+      notice.innerHTML = noticeHtml("error",
+        "⚠️ Sistèm anrejistreman an pa disponib nan apèsi sa a. Louvri paj la kòm yon Atifak ki pibliye pou done yo ka anrejistre epi pataje.");
+      return;
+    }
+
+    try{
+      canWrite = userCap ? !!(await userCap.canEdit()) : true;
+    }catch(e){ canWrite = true; }
+
+    subscribeStudents();
+    subscribeBulletins();
+    subscribeTeachers();
+    loadBranding();
+  }
+
+  // ---------- branding / logo ----------
+  async function loadBranding(){
+    if (!db) return;
+    try{
+      var snap = await db.doc("settings/branding").get();
+      currentLogoUrl = snap.exists ? (snap.data().logoUrl || null) : null;
+    }catch(e){ currentLogoUrl = null; }
+    applyHeaderLogo();
+  }
+  function applyHeaderLogo(){
+    var slot = document.getElementById("headerEmblemSlot");
+    var preview = document.getElementById("logoPreview");
+    if (currentLogoUrl){
+      slot.innerHTML = '<img class="emblem" src="' + esc(currentLogoUrl) + '" alt="Logo" style="object-fit:contain;border-radius:50%;background:#fff;">';
+      if (preview){ preview.src = currentLogoUrl; preview.style.display = "inline-block"; }
+    } else {
+      if (preview){ preview.style.display = "none"; }
+    }
+  }
+  document.getElementById("btnUploadLogo").onclick = async function(){
+    var msgEl = document.getElementById("logoMsg");
+    msgEl.innerHTML = "";
+    if (!db || !assetsCap){ msgEl.innerHTML = noticeHtml("error","Upload logo pa disponib nan apèsi sa a."); return; }
+    var fileInput = document.getElementById("logoFileInput");
+    var file = fileInput.files && fileInput.files[0];
+    if (!file){ msgEl.innerHTML = noticeHtml("warn","Chwazi yon imaj anvan."); return; }
+    try{
+      var uploaded = await assetsCap.upload(file);
+      await db.doc("settings/branding").set({ logoUrl: uploaded.url, logoContentType: uploaded.contentType, updatedAt: new Date().toISOString() });
+      currentLogoUrl = uploaded.url;
+      applyHeaderLogo();
+      fileInput.value = "";
+      msgEl.innerHTML = noticeHtml("success","✅ Logo chanje.");
+      toast("Logo chanje.");
+    }catch(e){
+      console.error(e);
+      msgEl.innerHTML = noticeHtml("error","Pa t kapab chanje logo a.");
+    }
+  };
+  document.getElementById("btnResetLogo").onclick = async function(){
+    var msgEl = document.getElementById("logoMsg");
+    msgEl.innerHTML = "";
+    if (!db){ return; }
+    try{
+      await db.doc("settings/branding").set({ logoUrl: null, updatedAt: new Date().toISOString() });
+      currentLogoUrl = null;
+      applyHeaderLogo();
+      msgEl.innerHTML = noticeHtml("info","Logo default la retabli.");
+      toast("Logo default retabli.");
+    }catch(e){
+      msgEl.innerHTML = noticeHtml("error","Pa t kapab retabli logo a.");
+    }
+  };
+
+  // ---------- director access gate ----------
+  var directorUnlocked = false;
+  var settingsDoc = null;
+
+  async function loadSettings(){
+    if (!db){ settingsDoc = {exists:false}; return; }
+    try{
+      var snap = await db.doc("settings/directorAccess").get();
+      settingsDoc = { exists: snap.exists, code: snap.exists ? (snap.data().code || null) : null };
+    }catch(e){ settingsDoc = {exists:false}; }
+  }
+  function checkLocalUnlock(){
+    try{ return localStorage.getItem("ceslogof_dir_unlocked") === "1"; }catch(e){ return false; }
+  }
+  function setLocalUnlock(v){
+    try{
+      if (v) localStorage.setItem("ceslogof_dir_unlocked", "1");
+      else localStorage.removeItem("ceslogof_dir_unlocked");
+    }catch(e){}
+  }
+
+  function refreshDirectorGate(){
+    var gate = document.getElementById("directorGate");
+    var content = document.getElementById("directorContent");
+    var lockWrap = document.getElementById("lockWrap");
+    var row = gate.querySelector(".row");
+
+    if (!db){ gate.classList.add("hidden"); content.classList.add("hidden"); lockWrap.classList.add("hidden"); return; }
+
+    if (!canWrite){
+      gate.classList.remove("hidden");
+      content.classList.add("hidden");
+      lockWrap.classList.add("hidden");
+      row.classList.add("hidden");
+      document.getElementById("gateTitle").textContent = "Seksyon rezève";
+      document.getElementById("gateSub").textContent = "Ou pa gen dwa antre nan seksyon Direktè a. Se sèlman direktè a ki ka jere elèv ak bilten yo.";
+      document.getElementById("gateMsg").innerHTML = "";
+      return;
+    }
+
+    if (directorUnlocked && checkLocalUnlock()){
+      gate.classList.add("hidden");
+      content.classList.remove("hidden");
+      lockWrap.classList.remove("hidden");
+      if (!submissionsSubscribed){ subscribeSubmissions(); submissionsSubscribed = true; }
+      return;
+    }
+
+    gate.classList.remove("hidden");
+    content.classList.add("hidden");
+    lockWrap.classList.add("hidden");
+    row.classList.remove("hidden");
+    var confirmWrap = document.getElementById("gateConfirmWrap");
+    document.getElementById("gateCodeInput").value = "";
+    document.getElementById("gateCodeConfirm").value = "";
+    document.getElementById("gateMsg").innerHTML = "";
+
+    if (settingsDoc && settingsDoc.exists){
+      document.getElementById("gateTitle").textContent = "Aksè Direktè";
+      document.getElementById("gateSub").textContent = "Antre kòd aksè a pou ou ka jere elèv ak bilten yo.";
+      document.getElementById("gateLabel1").textContent = "Kòd aksè";
+      confirmWrap.classList.add("hidden");
+      document.getElementById("btnGateSubmit").textContent = "Antre";
+    } else {
+      document.getElementById("gateTitle").textContent = "Kreye kòd aksè Direktè";
+      document.getElementById("gateSub").textContent = "Premye fwa: kreye yon kòd pou pwoteje seksyon sa a.";
+      document.getElementById("gateLabel1").textContent = "Nouvo kòd";
+      confirmWrap.classList.remove("hidden");
+      document.getElementById("btnGateSubmit").textContent = "Kreye kòd";
+    }
+  }
+
+  document.getElementById("btnGateSubmit").onclick = async function(){
+    var msgEl = document.getElementById("gateMsg");
+    msgEl.innerHTML = "";
+    var code = document.getElementById("gateCodeInput").value;
+    if (!code || code.length < 4){ msgEl.innerHTML = noticeHtml("warn","Kòd la dwe gen omwen 4 karaktè."); return; }
+    if (settingsDoc && settingsDoc.exists){
+      if (code === settingsDoc.code){
+        directorUnlocked = true; setLocalUnlock(true);
+        refreshDirectorGate();
+        toast("Seksyon Direktè a debloke.");
+      } else {
+        msgEl.innerHTML = noticeHtml("error","Kòd la pa bon. Eseye ankò.");
+      }
+    } else {
+      var confirmVal = document.getElementById("gateCodeConfirm").value;
+      if (code !== confirmVal){ msgEl.innerHTML = noticeHtml("warn","De kòd yo pa menm jan."); return; }
+      try{
+        await db.doc("settings/directorAccess").set({ code: code, createdAt: new Date().toISOString() });
+        settingsDoc = { exists:true, code: code };
+        directorUnlocked = true; setLocalUnlock(true);
+        refreshDirectorGate();
+        toast("Kòd aksè kreye. Sonje l byen — pa gen fason pou rekipere l si ou bliye l.");
+      }catch(e){
+        msgEl.innerHTML = noticeHtml("error","Pa t kapab kreye kòd la. Verifye ou gen dwa ekri sou atifak la.");
+      }
+    }
+  };
+
+  document.getElementById("btnLockDirector").onclick = function(){
+    directorUnlocked = false; setLocalUnlock(false);
+    refreshDirectorGate();
+  };
+
+  document.getElementById("btnChangeCode").onclick = async function(){
+    var msgEl = document.getElementById("changeCodeMsg");
+    msgEl.innerHTML = "";
+    var cur = document.getElementById("changeCodeCurrent").value;
+    var next = document.getElementById("changeCodeNew").value;
+    var confirmVal = document.getElementById("changeCodeConfirm").value;
+    if (!settingsDoc || !settingsDoc.exists){ msgEl.innerHTML = noticeHtml("warn","Pa gen kòd anrejistre toujou."); return; }
+    if (cur !== settingsDoc.code){ msgEl.innerHTML = noticeHtml("error","Kòd aktyèl la pa bon."); return; }
+    if (!next || next.length < 4){ msgEl.innerHTML = noticeHtml("warn","Nouvo kòd la dwe gen omwen 4 karaktè."); return; }
+    if (next !== confirmVal){ msgEl.innerHTML = noticeHtml("warn","De nouvo kòd yo pa menm jan."); return; }
+    try{
+      await db.doc("settings/directorAccess").set({ code: next, updatedAt: new Date().toISOString() });
+      settingsDoc.code = next;
+      document.getElementById("changeCodeCurrent").value = "";
+      document.getElementById("changeCodeNew").value = "";
+      document.getElementById("changeCodeConfirm").value = "";
+      msgEl.innerHTML = noticeHtml("success","✅ Kòd aksè a chanje.");
+      toast("Kòd aksè chanje.");
+    }catch(e){
+      msgEl.innerHTML = noticeHtml("error","Pa t kapab chanje kòd la.");
+    }
+  };
+
+  // ---------- students ----------
+  var studentsCache = {};
+
+  function subscribeStudents(){
+    if (!db) return;
+    db.collection("students").orderBy("fullName", "asc").onSnapshot(function(snap){
+      studentsCache = {};
+      snap.docs.forEach(function(d){
+        var data = d.data();
+        studentsCache[d.id] = { id: d.id, fullName: data.fullName || d.id, className: data.className || "" };
+      });
+      renderStudentsList();
+      renderStudentSelect();
+    }, function(err){ console.error("students onSnapshot error", err); });
+  }
+
+  function renderStudentsList(){
+    var wrap = document.getElementById("studentsListWrap");
+    var ids = Object.keys(studentsCache);
+    if (!ids.length){ wrap.innerHTML = '<div class="empty">Poko gen elèv anrejistre.</div>'; return; }
+    var groups = groupBy(studentsCache, "className");
+    var keys = sortedGroupKeys(groups);
+    wrap.innerHTML = keys.map(function(key){
+      var rowsHtml = groups[key].map(function(s){
+        var b = bulletinsCache[s.id];
+        var statusHtml = '<span class="badge badge-muted">Poko gen bilten</span>';
+        if (b) statusHtml = '<span class="badge badge-green">Pibliye' + (b.type === "file" ? " (fichye)" : "") + '</span>';
+        return '<tr>' +
+          '<td>' + esc(s.id) + '</td>' +
+          '<td>' + esc(s.fullName) + '</td>' +
+          '<td>' + statusHtml + '</td>' +
+          '<td><button class="btn btn-ghost btn-sm" data-open-bulletin="' + esc(s.id) + '">Ranpli bilten</button></td>' +
+          '</tr>';
+      }).join("");
+      return '<div class="group-block"><span class="group-title">Klas ' + esc(key) + ' (' + groups[key].length + ')</span>' +
+        '<table><thead><tr><th>ID</th><th>Non</th><th>Bilten</th><th></th></tr></thead><tbody>' + rowsHtml + '</tbody></table></div>';
+    }).join("");
+    wrap.querySelectorAll("[data-open-bulletin]").forEach(function(btn){
+      btn.onclick = function(){
+        document.querySelectorAll(".dsub").forEach(function(b){ b.classList.remove("active"); });
+        document.querySelector('.dsub[data-dsec="bilten"]').classList.add("active");
+        Object.keys(secMap).forEach(function(key){ document.getElementById(secMap[key]).classList.toggle("hidden", key !== "bilten"); });
+        document.getElementById("selBulletinStudent").value = btn.getAttribute("data-open-bulletin");
+        onSelectBulletinStudent();
+        document.getElementById("selBulletinStudent").scrollIntoView({behavior:"smooth", block:"center"});
+      };
+    });
+  }
+
+  function renderStudentSelect(){
+    var sel = document.getElementById("selBulletinStudent");
+    var current = sel.value;
+    var ids = Object.keys(studentsCache);
+    sel.innerHTML = '<option value="">— Chwazi yon elèv —</option>' + ids.map(function(id){
+      var s = studentsCache[id];
+      return '<option value="' + esc(id) + '">' + esc(s.fullName) + ' (' + esc(id) + ')</option>';
+    }).join("");
+    if (ids.indexOf(current) !== -1) sel.value = current;
+  }
+
+  document.getElementById("btnAddStudent").onclick = async function(){
+    if (!db) return;
+    var rawId = document.getElementById("newStudentId").value;
+    var id = sanitizeId(rawId);
+    var name = document.getElementById("newStudentName").value.trim();
+    var className = document.getElementById("newStudentClass").value.trim();
+    if (!id){ toast("Tanpri antre yon ID valid (lèt ak chif)."); return; }
+    if (!name){ toast("Tanpri antre non elèv la."); return; }
+    try{
+      await db.collection("students").doc(id).set({
+        fullName: name, className: className, createdAt: new Date().toISOString()
+      });
+      document.getElementById("newStudentId").value = "";
+      document.getElementById("newStudentName").value = "";
+      document.getElementById("newStudentClass").value = "";
+      toast("Elèv " + name + " anrejistre.");
+    }catch(e){
+      console.error(e);
+      toast("Pa t kapab anrejistre elèv la.");
+    }
+  };
+
+  // ---------- teachers ----------
+  var teachersCache = {};
+
+  function subscribeTeachers(){
+    if (!db) return;
+    db.collection("teachers").orderBy("fullName", "asc").onSnapshot(function(snap){
+      teachersCache = {};
+      snap.docs.forEach(function(d){
+        var data = d.data();
+        teachersCache[d.id] = { id: d.id, fullName: data.fullName || d.id, subject: data.subject || "", className: data.className || "" };
+      });
+      renderTeachersList();
+    }, function(err){ console.error("teachers onSnapshot error", err); });
+  }
+
+  function renderTeachersList(){
+    var wrap = document.getElementById("teachersListWrap");
+    var ids = Object.keys(teachersCache);
+    if (!ids.length){ wrap.innerHTML = '<div class="empty">Poko gen pwofesè anrejistre.</div>'; return; }
+    var groups = groupBy(teachersCache, "className");
+    var keys = sortedGroupKeys(groups);
+    wrap.innerHTML = keys.map(function(key){
+      var rowsHtml = groups[key].map(function(t){
+        return '<tr><td>' + esc(t.id) + '</td><td>' + esc(t.fullName) + '</td><td>' + esc(t.subject) + '</td></tr>';
+      }).join("");
+      return '<div class="group-block"><span class="group-title">Klas ' + esc(key) + ' (' + groups[key].length + ')</span>' +
+        '<table><thead><tr><th>ID</th><th>Non</th><th>Matyè</th></tr></thead><tbody>' + rowsHtml + '</tbody></table></div>';
+    }).join("");
+  }
+
+  document.getElementById("btnAddTeacher").onclick = async function(){
+    if (!db) return;
+    var id = sanitizeId(document.getElementById("newTeacherId").value);
+    var name = document.getElementById("newTeacherName").value.trim();
+    var subject = document.getElementById("newTeacherSubject").value.trim();
+    var className = document.getElementById("newTeacherClass").value.trim();
+    if (!id){ toast("Tanpri antre yon ID valid pou pwofesè a."); return; }
+    if (!name){ toast("Tanpri antre non pwofesè a."); return; }
+    try{
+      await db.collection("teachers").doc(id).set({
+        fullName: name, subject: subject, className: className, createdAt: new Date().toISOString()
+      });
+      document.getElementById("newTeacherId").value = "";
+      document.getElementById("newTeacherName").value = "";
+      document.getElementById("newTeacherSubject").value = "";
+      document.getElementById("newTeacherClass").value = "";
+      toast("Pwofesè " + name + " anrejistre.");
+    }catch(e){
+      console.error(e);
+      toast("Pa t kapab anrejistre pwofesè a.");
+    }
+  };
+
+  // ---------- submissions (director side) ----------
+  function subscribeSubmissions(){
+    if (!db) return;
+    db.collection("submissions").orderBy("submittedAt", "desc").onSnapshot(function(snap){
+      renderSubmissionsTable(snap.docs);
+    }, function(err){ console.error("submissions onSnapshot error", err); });
+  }
+
+  function renderSubmissionsTable(docs){
+    var tbody = document.getElementById("submissionsTbody");
+    if (!docs.length){
+      tbody.innerHTML = '<tr><td colspan="6" class="empty">Poko gen okenn palmarès resevwa.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = docs.map(function(d){
+      var s = d.data();
+      var dateStr = s.submittedAt ? new Date(s.submittedAt).toLocaleString('fr-FR') : "—";
+      var fa = s.fileAsset || {};
+      return '<tr>' +
+        '<td>' + esc(s.teacherName || s.teacherId || "—") + '</td>' +
+        '<td>' + esc(s.subject || "—") + '</td>' +
+        '<td>' + esc(s.className || "—") + '</td>' +
+        '<td>' + esc((s.term || "—") + (s.schoolYear ? (" · " + s.schoolYear) : "")) + '</td>' +
+        '<td>' + esc(dateStr) + '</td>' +
+        '<td>' + (fa.url ? '<a class="btn btn-ghost btn-sm" href="' + esc(fa.url) + '" target="_blank" rel="noopener">⬇ ' + esc(fa.fileName || "Wè fichye") + '</a>' : '—') + '</td>' +
+        '</tr>';
+    }).join("");
+  }
+
+  // ---------- bulletins: table mode ----------
+  var bulletinsCache = {};
+  var subjectRows = [];
+
+  function subscribeBulletins(){
+    if (!db) return;
+    db.collection("bulletins").onSnapshot(function(snap){
+      bulletinsCache = {};
+      snap.docs.forEach(function(d){ bulletinsCache[d.id] = d.data(); });
+      renderStudentsList();
+    }, function(err){ console.error("bulletins onSnapshot error", err); });
+  }
+
+  function renderSubjectRows(){
+    var tbody = document.getElementById("subjectsTbody");
+    if (!subjectRows.length){
+      tbody.innerHTML = '<tr><td colspan="6" class="empty">Ajoute omwen yon matyè.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = subjectRows.map(function(r){
+      return '<tr data-row="' + r.rid + '">' +
+        '<td><input type="text" class="f-name" value="' + esc(r.name) + '" placeholder="Matematik"></td>' +
+        '<td><input type="number" class="f-note" min="0" step="0.5" value="' + esc(r.note) + '"></td>' +
+        '<td><input type="number" class="f-max" min="1" step="0.5" value="' + esc(r.max) + '"></td>' +
+        '<td><input type="number" class="f-coef" min="0.5" step="0.5" value="' + esc(r.coef) + '"></td>' +
+        '<td><input type="text" class="f-remark" value="' + esc(r.remark) + '" placeholder="Byen, Ekselan, elatriye"></td>' +
+        '<td><button class="btn btn-danger" data-remove-row="' + r.rid + '" style="padding:5px 9px;">✕</button></td>' +
+        '</tr>';
+    }).join("");
+    tbody.querySelectorAll("[data-remove-row]").forEach(function(btn){
+      btn.onclick = function(){
+        syncRowsFromDom();
+        var rid = btn.getAttribute("data-remove-row");
+        subjectRows = subjectRows.filter(function(r){ return r.rid !== rid; });
+        renderSubjectRows();
+        updateAverageDisplay();
+      };
+    });
+  }
+
+  function syncRowsFromDom(){
+    var tbody = document.getElementById("subjectsTbody");
+    var trs = tbody.querySelectorAll("tr[data-row]");
+    var updated = [];
+    trs.forEach(function(tr){
+      var rid = tr.getAttribute("data-row");
+      updated.push({
+        rid: rid,
+        name: tr.querySelector(".f-name").value,
+        note: tr.querySelector(".f-note").value,
+        max: tr.querySelector(".f-max").value,
+        coef: tr.querySelector(".f-coef").value,
+        remark: tr.querySelector(".f-remark").value
+      });
+    });
+    if (updated.length) subjectRows = updated;
+  }
+
+  function computeAverage(rows){
+    var sumWeighted = 0, sumCoef = 0;
+    rows.forEach(function(r){
+      var note = parseFloat(r.note);
+      var max = parseFloat(r.max);
+      var coef = parseFloat(r.coef);
+      if (isNaN(coef) || coef <= 0) coef = 1;
+      if (isNaN(max) || max <= 0) max = 100;
+      if (!isNaN(note)){
+        var pct = (note / max) * 100;
+        sumWeighted += pct * coef; sumCoef += coef;
+      }
+    });
+    if (sumCoef === 0) return null;
+    return Math.round((sumWeighted / sumCoef) * 100) / 100;
+  }
+
+  function updateAverageDisplay(){
+    syncRowsFromDom();
+    var avg = computeAverage(subjectRows.filter(function(r){ return r.name.trim(); }));
+    document.getElementById("liveAverage").textContent = (avg === null) ? "—" : avg.toFixed(2);
+  }
+
+  document.getElementById("subjectsTbody").addEventListener("input", updateAverageDisplay);
+
+  document.getElementById("btnAddSubject").onclick = function(){
+    syncRowsFromDom();
+    subjectRows.push({ rid: uid(), name:"", note:"", max:"100", coef:"1", remark:"" });
+    renderSubjectRows();
+    var tbody = document.getElementById("subjectsTbody");
+    var lastInput = tbody.querySelector('tr:last-child .f-name');
+    if (lastInput) lastInput.focus();
+  };
+
+  document.getElementById("btnClearForm").onclick = function(){
+    document.getElementById("selBulletinStudent").value = "";
+    document.getElementById("bulletinTerm").value = "";
+    document.getElementById("bulletinYear").value = "";
+    document.getElementById("bulletinRemark").value = "";
+    subjectRows = [];
+    renderSubjectRows();
+    updateAverageDisplay();
+    document.getElementById("publishMsg").innerHTML = "";
+  };
+
+  async function onSelectBulletinStudent(){
+    var id = document.getElementById("selBulletinStudent").value;
+    document.getElementById("publishMsg").innerHTML = "";
+    if (!id || !db){ return; }
+    try{
+      var snap = await db.collection("bulletins").doc(id).get();
+      if (snap.exists && snap.data().type !== "file"){
+        var data = snap.data();
+        document.getElementById("bulletinTerm").value = data.term || "";
+        document.getElementById("bulletinYear").value = data.schoolYear || "";
+        document.getElementById("bulletinRemark").value = data.generalRemark || "";
+        subjectRows = (data.subjects || []).map(function(s){
+          return { rid: uid(), name: s.name || "", note: s.note != null ? s.note : "", max: s.max != null ? s.max : "100", coef: s.coef != null ? s.coef : "1", remark: s.remark || "" };
+        });
+        if (!subjectRows.length) subjectRows = [{ rid: uid(), name:"", note:"", max:"100", coef:"1", remark:"" }];
+      } else {
+        subjectRows = [{ rid: uid(), name:"", note:"", max:"100", coef:"1", remark:"" }];
+        if (!(snap.exists)){
+          document.getElementById("bulletinTerm").value = "";
+          document.getElementById("bulletinYear").value = "";
+        }
+        document.getElementById("bulletinRemark").value = "";
+      }
+      renderSubjectRows();
+      updateAverageDisplay();
+    }catch(e){ console.error(e); }
+  }
+  document.getElementById("selBulletinStudent").addEventListener("change", onSelectBulletinStudent);
+
+  document.getElementById("btnPublish").onclick = async function(){
+    if (!db){ toast("Sistèm anrejistreman an pa disponib."); return; }
+    var studentId = document.getElementById("selBulletinStudent").value;
+    if (!studentId){ toast("Chwazi yon elèv anvan."); return; }
+    var student = studentsCache[studentId];
+    if (!student){ toast("Elèv sa a pa jwenn."); return; }
+
+    syncRowsFromDom();
+    var subjects = subjectRows
+      .filter(function(r){ return r.name.trim(); })
+      .map(function(r){
+        return {
+          name: r.name.trim(),
+          note: r.note === "" ? null : parseFloat(r.note),
+          max: r.max === "" ? 100 : parseFloat(r.max),
+          coef: r.coef === "" ? 1 : parseFloat(r.coef),
+          remark: r.remark.trim()
+        };
+      });
+    if (!subjects.length){ toast("Ajoute omwen yon matyè ak yon non."); return; }
+
+    var avg = computeAverage(subjects);
+    var bulletin = {
+      studentId: studentId,
+      studentName: student.fullName,
+      className: student.className,
+      term: document.getElementById("bulletinTerm").value.trim(),
+      schoolYear: document.getElementById("bulletinYear").value.trim(),
+      type: "table",
+      subjects: subjects,
+      average: avg,
+      generalRemark: document.getElementById("bulletinRemark").value.trim(),
+      publishedAt: new Date().toISOString()
+    };
+
+    var btn = document.getElementById("btnPublish");
+    btn.disabled = true;
+    try{
+      await db.collection("bulletins").doc(studentId).set(bulletin);
+      document.getElementById("publishMsg").innerHTML = noticeHtml("success", "✅ Bilten " + esc(student.fullName) + " pibliye. Li ka jwenn li ak ID: <strong>" + esc(studentId) + "</strong>.");
+      toast("Bilten pibliye pou " + student.fullName);
+    }catch(e){
+      console.error(e);
+      var msg = (e && e.code === "invalid_argument") ? "Ou pa gen dwa pibliye." : "Yon erè pase, eseye ankò.";
+      document.getElementById("publishMsg").innerHTML = noticeHtml("error", "⚠️ " + msg);
+    }
+    btn.disabled = false;
+  };
+
+  // ---------- bulletins: file upload mode (director) ----------
+  document.getElementById("btnModeTable").onclick = function(){
+    document.getElementById("btnModeTable").classList.add("active");
+    document.getElementById("btnModeFile").classList.remove("active");
+    document.getElementById("bulletinModeTable").classList.remove("hidden");
+    document.getElementById("bulletinModeFile").classList.add("hidden");
+  };
+  document.getElementById("btnModeFile").onclick = function(){
+    document.getElementById("btnModeFile").classList.add("active");
+    document.getElementById("btnModeTable").classList.remove("active");
+    document.getElementById("bulletinModeFile").classList.remove("hidden");
+    document.getElementById("bulletinModeTable").classList.add("hidden");
+  };
+  document.getElementById("bulletinFileInput").addEventListener("change", function(){
+    var f = this.files && this.files[0];
+    var info = document.getElementById("fileSelectedInfo");
+    info.textContent = f ? ("Fichye chwazi: " + f.name + " (" + Math.round(f.size/1024) + " KB)") : "";
+  });
+
+  document.getElementById("btnPublishFile").onclick = async function(){
+    if (!db){ toast("Sistèm anrejistreman an pa disponib."); return; }
+    if (!assetsCap){ toast("Upload fichye pa disponib nan apèsi sa a."); return; }
+    var studentId = document.getElementById("selBulletinStudent").value;
+    if (!studentId){ toast("Chwazi yon elèv anvan."); return; }
+    var student = studentsCache[studentId];
+    if (!student){ toast("Elèv sa a pa jwenn."); return; }
+    var fileInput = document.getElementById("bulletinFileInput");
+    var file = fileInput.files && fileInput.files[0];
+    if (!file){ toast("Chwazi yon fichye anvan."); return; }
+
+    var btn = document.getElementById("btnPublishFile");
+    btn.disabled = true;
+    document.getElementById("publishMsg").innerHTML = noticeHtml("info", "⏳ Ap voye fichye a...");
+    try{
+      var uploaded = await assetsCap.upload(file);
+      var bulletin = {
+        studentId: studentId,
+        studentName: student.fullName,
+        className: student.className,
+        term: document.getElementById("bulletinTerm").value.trim(),
+        schoolYear: document.getElementById("bulletinYear").value.trim(),
+        type: "file",
+        fileAsset: { id: uploaded.id, url: uploaded.url, contentType: uploaded.contentType, fileName: file.name, sizeBytes: uploaded.sizeBytes },
+        publishedAt: new Date().toISOString()
+      };
+      await db.collection("bulletins").doc(studentId).set(bulletin);
+      document.getElementById("publishMsg").innerHTML = noticeHtml("success", "✅ Fichye pibliye kòm bilten " + esc(student.fullName) + ". Li ka jwenn li ak ID: <strong>" + esc(studentId) + "</strong>.");
+      toast("Fichye pibliye pou " + student.fullName);
+      fileInput.value = "";
+      document.getElementById("fileSelectedInfo").textContent = "";
+    }catch(e){
+      console.error(e);
+      document.getElementById("publishMsg").innerHTML = noticeHtml("error", "⚠️ Pa t kapab pibliye fichye a. Eseye ankò.");
+    }
+    btn.disabled = false;
+  };
+
+  // ---------- teacher portal ----------
+  var currentTeacher = null;
+
+  document.getElementById("btnTeacherLookup").onclick = async function(){
+    var msgEl = document.getElementById("teacherLookupMsg");
+    msgEl.innerHTML = "";
+    document.getElementById("teacherSubmitPanel").classList.add("hidden");
+    if (!db){ msgEl.innerHTML = noticeHtml("error", "Sistèm nan pa disponib nan apèsi sa a."); return; }
+    var id = sanitizeId(document.getElementById("teacherIdInput").value);
+    if (!id){ msgEl.innerHTML = noticeHtml("warn", "Antre ID pwofesè ou anvan."); return; }
+    try{
+      var snap = await db.collection("teachers").doc(id).get();
+      if (!snap.exists){
+        msgEl.innerHTML = noticeHtml("warn", "Nou pa jwenn okenn pwofesè ak ID sa a. Mande direktè a anrejistre ou.");
+        return;
+      }
+      var t = snap.data();
+      currentTeacher = { id: id, fullName: t.fullName || id, subject: t.subject || "", className: t.className || "" };
+      document.getElementById("teacherGreeting").textContent = "Byenveni, " + currentTeacher.fullName;
+      document.getElementById("subFormSubject").value = currentTeacher.subject;
+      document.getElementById("subFormClass").value = currentTeacher.className;
+      document.getElementById("subFormTerm").value = "";
+      document.getElementById("subFormYear").value = "";
+      document.getElementById("subFormNote").value = "";
+      document.getElementById("subFormFile").value = "";
+      document.getElementById("subFormFileInfo").textContent = "";
+      document.getElementById("submitMsg").innerHTML = "";
+      document.getElementById("teacherSubmitPanel").classList.remove("hidden");
+    }catch(e){
+      console.error(e);
+      msgEl.innerHTML = noticeHtml("error", "Yon erè pase pandan rechèch la.");
+    }
+  };
+  document.getElementById("teacherIdInput").addEventListener("keydown", function(e){
+    if (e.key === "Enter") document.getElementById("btnTeacherLookup").click();
+  });
+
+  document.getElementById("subFormFile").addEventListener("change", function(){
+    var f = this.files && this.files[0];
+    document.getElementById("subFormFileInfo").textContent = f ? ("Fichye chwazi: " + f.name + " (" + Math.round(f.size/1024) + " KB)") : "";
+  });
+
+  document.getElementById("btnSubmitPalmares").onclick = async function(){
+    var msgEl = document.getElementById("submitMsg");
+    msgEl.innerHTML = "";
+    if (!db || !assetsCap){ msgEl.innerHTML = noticeHtml("error", "Voye fichye pa disponib nan apèsi sa a."); return; }
+    if (!currentTeacher){ msgEl.innerHTML = noticeHtml("warn", "Antre ID pwofesè ou anvan."); return; }
+    var fileInput = document.getElementById("subFormFile");
+    var file = fileInput.files && fileInput.files[0];
+    if (!file){ msgEl.innerHTML = noticeHtml("warn", "Chwazi fichye palmarès la anvan."); return; }
+
+    var btn = document.getElementById("btnSubmitPalmares");
+    btn.disabled = true;
+    msgEl.innerHTML = noticeHtml("info", "⏳ Ap voye fichye a bay direktè a...");
+    try{
+      var uploaded = await assetsCap.upload(file);
+      var submission = {
+        teacherId: currentTeacher.id,
+        teacherName: currentTeacher.fullName,
+        subject: document.getElementById("subFormSubject").value.trim(),
+        className: document.getElementById("subFormClass").value.trim(),
+        term: document.getElementById("subFormTerm").value.trim(),
+        schoolYear: document.getElementById("subFormYear").value.trim(),
+        note: document.getElementById("subFormNote").value.trim(),
+        fileAsset: { id: uploaded.id, url: uploaded.url, contentType: uploaded.contentType, fileName: file.name, sizeBytes: uploaded.sizeBytes },
+        submittedAt: new Date().toISOString()
+      };
+      await db.collection("submissions").add(submission);
+      msgEl.innerHTML = noticeHtml("success", "✅ Palmarès la voye bay direktè a. Mèsi!");
+      toast("Palmarès voye bay direktè a.");
+      fileInput.value = "";
+      document.getElementById("subFormFileInfo").textContent = "";
+      document.getElementById("subFormNote").value = "";
+    }catch(e){
+      console.error(e);
+      var errMsg = (e && e.code === "invalid_argument") ? "Ou pa gen dwa voye fichye — mande direktè a ba ou aksè \"Ka Entèraji\" sou lyen an." : "Pa t kapab voye fichye a. Eseye ankò.";
+      msgEl.innerHTML = noticeHtml("error", "⚠️ " + errMsg);
+    }
+    btn.disabled = false;
+  };
+
+  // ---------- student lookup ----------
+  function bulletinDocInnerHtml(data){
+    var emblemBlock = currentLogoUrl
+      ? '<img class="emblem" src="' + esc(currentLogoUrl) + '" alt="Logo" style="object-fit:contain;border-radius:50%;background:#fff;">'
+      : '<svg class="emblem" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
+          '<circle cx="50" cy="50" r="47" fill="none" stroke="#000000" stroke-width="3"/>' +
+          '<path d="M28 66 C22 50 24 34 30 24" fill="none" stroke="#000000" stroke-width="2"/>' +
+          '<path d="M72 66 C78 50 76 34 70 24" fill="none" stroke="#000000" stroke-width="2"/>' +
+          '<rect x="36" y="42" width="28" height="20" rx="1.5" fill="none" stroke="#000000" stroke-width="2"/>' +
+          '<line x1="50" y1="42" x2="50" y2="62" stroke="#000000" stroke-width="2"/>' +
+        '</svg>';
+    var headHtml =
+      '<div class="doc-head">' + emblemBlock +
+        '<div><h2>CESLOGOF</h2><p>Toujou Ekselans</p></div>' +
+      '</div>' +
+      '<div class="doc-meta">' +
+        '<div><span class="k">Elèv</span><span class="v">' + esc(data.studentName) + '</span></div>' +
+        '<div><span class="k">ID pèsonèl</span><span class="v">' + esc(data.studentId) + '</span></div>' +
+        '<div><span class="k">Klas</span><span class="v">' + esc(data.className || "—") + '</span></div>' +
+        '<div><span class="k">Peryòd</span><span class="v">' + esc(data.term || "—") + ' · ' + esc(data.schoolYear || "—") + '</span></div>' +
+      '</div>';
+
+    if (data.type === "file" && data.fileAsset){
+      var fa = data.fileAsset;
+      var previewHtml = "";
+      if (fa.contentType && fa.contentType.indexOf("image/") === 0){
+        previewHtml = '<img src="' + esc(fa.url) + '" alt="Bilten">';
+      } else if (fa.contentType === "application/pdf"){
+        previewHtml = '<iframe src="' + esc(fa.url) + '"></iframe>';
+      }
+      return headHtml +
+        '<div class="doc-file-preview">' + previewHtml +
+        '<div><a class="doc-file-link" href="' + esc(fa.url) + '" download="' + esc(fa.fileName || "bilten") + '" target="_blank" rel="noopener">⬇ Louvri / Telechaje fichye a (' + esc(fa.fileName || "") + ')</a></div>' +
+        '</div>' +
+        '<div class="doc-foot"><span>Pibliye: ' + esc(data.publishedAt ? new Date(data.publishedAt).toLocaleDateString('fr-FR') : "—") + '</span><span>CESLOGOF — Toujou Ekselans</span></div>';
+    }
+
+    var subjectsHtml = (data.subjects || []).map(function(s){
+      var noteStr = (s.note != null ? esc(s.note) : "—") + " / " + esc(s.max != null ? s.max : 100);
+      return '<tr><td>' + esc(s.name) + '</td><td>' + noteStr + '</td><td>' + esc(s.coef != null ? s.coef : 1) + '</td><td>' + esc(s.remark || "") + '</td></tr>';
+    }).join("");
+    return headHtml +
+      '<table><thead><tr><th>Matyè</th><th>Nòt</th><th>Kowef.</th><th>Apresyasyon</th></tr></thead><tbody>' + subjectsHtml + '</tbody></table>' +
+      '<div class="avg-line"><span class="avg-label">Mwayèn jeneral /100</span><span class="avg-val">' + (data.average != null ? esc(data.average) : "—") + '</span></div>' +
+      (data.generalRemark ? '<div class="doc-remark"><span class="k">Apresyasyon jeneral</span>' + esc(data.generalRemark) + '</div>' : '') +
+      '<div class="doc-foot"><span>Pibliye: ' + esc(data.publishedAt ? new Date(data.publishedAt).toLocaleDateString('fr-FR') : "—") + '</span><span>CESLOGOF — Toujou Ekselans</span></div>';
+  }
+
+  function standaloneBulletinHtml(data){
+    return '<!DOCTYPE html><html lang="ht"><head><meta charset="UTF-8"><title>Bilten - ' + esc(data.studentName) + '</title>' +
+      '<style>body{font-family:Georgia,serif;background:#ffffff;color:#141414;margin:0;padding:30px;}' +
+      '.bulletin-doc{background:#ffffff;border:1.5px solid #141414;border-radius:10px;padding:30px 28px;max-width:640px;margin:0 auto;}' +
+      '.doc-head{display:flex;align-items:center;gap:16px;border-bottom:3px solid #ffffff;padding-bottom:16px;margin-bottom:18px;}' +
+      '.doc-head h2{font-family:Georgia,serif;margin:0;font-size:20px;color:#141414;}' +
+      '.doc-head p{margin:2px 0 0;font-style:italic;font-size:12.5px;color:#141414;}' +
+      '.emblem{width:52px;height:52px;}' +
+      '.doc-meta{display:grid;grid-template-columns:1fr 1fr;gap:6px 24px;font-size:14px;margin-bottom:18px;}' +
+      '.doc-meta span.k{color:#000000;font-size:12px;display:block;} .doc-meta span.v{font-weight:700;color:#141414;}' +
+      'table{width:100%;border-collapse:collapse;font-size:14px;} th,td{padding:9px 8px;border-bottom:1px solid #141414;text-align:left;color:#141414;}' +
+      'th{color:#141414;font-size:12px;text-transform:uppercase;border-bottom:2px solid #141414;}' +
+      '.avg-line{display:flex;justify-content:flex-end;gap:10px;align-items:baseline;margin-top:14px;padding-top:12px;border-top:2px solid #141414;}' +
+      '.avg-label{font-size:13px;color:#000000;} .avg-val{font-size:26px;font-weight:700;color:#141414;}' +
+      '.doc-remark{margin-top:16px;font-size:13.5px;line-height:1.6;color:#141414;} .doc-remark span.k{display:block;color:#000000;font-size:12px;margin-bottom:3px;}' +
+      '.doc-foot{margin-top:22px;display:flex;justify-content:space-between;font-size:11.5px;color:#000000;}' +
+      '.doc-file-link{display:inline-block;margin-top:10px;color:#141414;}' +
+      '</style></head><body><div class="bulletin-doc">' + bulletinDocInnerHtml(data) + '</div></body></html>';
+  }
+
+  async function searchBulletin(){
+    var msgEl = document.getElementById("studentSearchMsg");
+    var resultEl = document.getElementById("studentResultWrap");
+    resultEl.innerHTML = "";
+    msgEl.innerHTML = "";
+    if (!db){ msgEl.innerHTML = noticeHtml("error", "Sistèm nan pa disponib nan apèsi sa a."); return; }
+    var id = sanitizeId(document.getElementById("studentSearchId").value);
+    if (!id){ msgEl.innerHTML = noticeHtml("warn", "Antre ID pèsonèl ou anvan."); return; }
+    try{
+      var snap = await db.collection("bulletins").doc(id).get();
+      if (!snap.exists){
+        msgEl.innerHTML = noticeHtml("warn", "Nou pa jwenn okenn bilten pou ID sa a. Verifye ID a oswa mande direktè a.");
+        return;
+      }
+      var data = snap.data();
+      var isFile = data.type === "file";
+      var html = '<div class="panel print-area bulletin-doc" id="bulletinDoc">' + bulletinDocInnerHtml(data) + '</div>' +
+        '<div style="display:flex; gap:10px; margin-top:14px; flex-wrap:wrap;">' +
+        (isFile ? '' : '<button class="btn btn-gold" id="btnDownloadBulletin">⬇ Telechaje bilten</button>') +
+        '<button class="btn btn-ghost" id="btnPrintBulletin">🖨 Enprime / Konvèti an PDF</button>' +
+        '</div>';
+      resultEl.innerHTML = html;
+      document.getElementById("btnPrintBulletin").onclick = function(){ window.print(); };
+      var dlBtn = document.getElementById("btnDownloadBulletin");
+      if (dlBtn){
+        dlBtn.onclick = async function(){
+          if (!downloadsCap){ toast("Telechajman pa disponib isit; itilize bouton Enprime a pito."); return; }
+          try{
+            var fname = "Bilten_" + (data.studentName || id).replace(/[^A-Za-z0-9_\- ]/g,"").replace(/\s+/g,"_") + ".html";
+            await downloadsCap.save({ filename: fname, data: standaloneBulletinHtml(data) });
+            toast("Bilten telechaje.");
+          }catch(e){
+            if (e && e.code !== "declined") toast("Pa t kapab telechaje bilten an.");
+          }
+        };
+      }
+    }catch(e){
+      console.error(e);
+      msgEl.innerHTML = noticeHtml("error", "Yon erè pase pandan rechèch la.");
+    }
+  }
+  document.getElementById("btnSearchBulletin").onclick = searchBulletin;
+  document.getElementById("studentSearchId").addEventListener("keydown", function(e){
+    if (e.key === "Enter") searchBulletin();
+  });
+
+  // ---------- init ----------
+  subjectRows = [{ rid: uid(), name:"", note:"", max:"100", coef:"1", remark:"" }];
+  renderSubjectRows();
+  initCapabilities();
+
+})();
+</script>
+</body>
+</html>
